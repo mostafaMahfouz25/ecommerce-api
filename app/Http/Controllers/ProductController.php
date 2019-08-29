@@ -84,7 +84,7 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        //
+        
     }
 
     /**
@@ -94,9 +94,15 @@ class ProductController extends Controller
      * @param  \App\Models\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Product $product)
+    public function update(ProductRequest $request, Product $product)
     {
-        //
+        $request['detail']  = $request->description;
+        unset($request['description']);
+        $product->update($request->all());
+
+        return response([
+            'data' => new ProductResource($product),
+        ],Response::HTTP_CREATED);
     }
 
     /**
@@ -107,6 +113,9 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        //
+        $product->delete();
+        return response([
+            'data' => "Item Have Been Deleted",
+        ],Response::HTTP_OK);
     }
 }
