@@ -7,8 +7,9 @@ use Illuminate\Http\Request;
 use App\Http\Requests\ProductRequest;
 use App\Http\Resources\Product\ProductResource;
 use App\Http\Resources\Product\ProductCollection;
-
 use Symfony\Component\HttpFoundation\Response;
+use App\Exceptions\ProductNotBelongsToUser;
+use Auth;
 
 class ProductController extends Controller
 {
@@ -96,6 +97,7 @@ class ProductController extends Controller
      */
     public function update(ProductRequest $request, Product $product)
     {
+        $this->productUserCheck($product);
         $request['detail']  = $request->description;
         unset($request['description']);
         $product->update($request->all());
@@ -113,9 +115,31 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
+        $this->productUserCheck($product);
         $product->delete();
         return response([
             'data' => "Item Have Been Deleted",
         ],Response::HTTP_OK);
     }
+
+
+
+    public function productUserCheck($product)
+
+    {
+        if(Auth::id() !== $product->user_id)
+        {
+            throw new ProductNotBelongsToUser;
+        }
+    }
+
+
+
+
+
+
+
+
+
+
 }
